@@ -29,9 +29,6 @@ public class LightSymbols {
     
     public init() {}
     
-    public func log(message: String) {
-        print("Log message: ", message)
-    }
     private func processDetections(for request: VNRequest, error: Error?) {
         
         DispatchQueue.main.async {
