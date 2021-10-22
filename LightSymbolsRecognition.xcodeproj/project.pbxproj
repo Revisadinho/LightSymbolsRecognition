@@ -7,18 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D84299E8272049180073BC19 /* LightsDetector_2.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = D84299E7272049180073BC19 /* LightsDetector_2.mlmodel */; };
+		D8B4ED882722EC3D00AEEEE4 /* LightsDetector_v2.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = D8B4ED872722EC3D00AEEEE4 /* LightsDetector_v2.mlmodel */; };
+		D8B4ED8A2722EC7E00AEEEE4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B4ED892722EC7E00AEEEE4 /* ViewController.swift */; };
 		D8D994D8270DC34300D5A239 /* LightSymbolsRecognition.docc in Sources */ = {isa = PBXBuildFile; fileRef = D8D994D7270DC34300D5A239 /* LightSymbolsRecognition.docc */; };
 		D8D994D9270DC34300D5A239 /* LightSymbolsRecognition.h in Headers */ = {isa = PBXBuildFile; fileRef = D8D994D6270DC34300D5A239 /* LightSymbolsRecognition.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D8D994E0270DC38E00D5A239 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D994DF270DC38E00D5A239 /* Model.swift */; };
+		D8D994E0270DC38E00D5A239 /* LightSymbols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D994DF270DC38E00D5A239 /* LightSymbols.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		D84299E7272049180073BC19 /* LightsDetector_2.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = LightsDetector_2.mlmodel; path = ../../../Documents/LightsDetector_2.mlmodel; sourceTree = "<group>"; };
+		D8B4ED872722EC3D00AEEEE4 /* LightsDetector_v2.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = LightsDetector_v2.mlmodel; sourceTree = "<group>"; };
+		D8B4ED892722EC7E00AEEEE4 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		D8D994D3270DC34300D5A239 /* LightSymbolsRecognition.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LightSymbolsRecognition.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8D994D6270DC34300D5A239 /* LightSymbolsRecognition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LightSymbolsRecognition.h; sourceTree = "<group>"; };
 		D8D994D7270DC34300D5A239 /* LightSymbolsRecognition.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = LightSymbolsRecognition.docc; sourceTree = "<group>"; };
-		D8D994DF270DC38E00D5A239 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		D8D994DF270DC38E00D5A239 /* LightSymbols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightSymbols.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,8 +55,9 @@
 			children = (
 				D8D994D6270DC34300D5A239 /* LightSymbolsRecognition.h */,
 				D8D994D7270DC34300D5A239 /* LightSymbolsRecognition.docc */,
-				D8D994DF270DC38E00D5A239 /* Model.swift */,
-				D84299E7272049180073BC19 /* LightsDetector_2.mlmodel */,
+				D8D994DF270DC38E00D5A239 /* LightSymbols.swift */,
+				D8B4ED872722EC3D00AEEEE4 /* LightsDetector_v2.mlmodel */,
+				D8B4ED892722EC7E00AEEEE4 /* ViewController.swift */,
 			);
 			path = LightSymbolsRecognition;
 			sourceTree = "<group>";
@@ -138,9 +141,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8B4ED882722EC3D00AEEEE4 /* LightsDetector_v2.mlmodel in Sources */,
 				D8D994D8270DC34300D5A239 /* LightSymbolsRecognition.docc in Sources */,
-				D84299E8272049180073BC19 /* LightsDetector_2.mlmodel in Sources */,
-				D8D994E0270DC38E00D5A239 /* Model.swift in Sources */,
+				D8B4ED8A2722EC7E00AEEEE4 /* ViewController.swift in Sources */,
+				D8D994E0270DC38E00D5A239 /* LightSymbols.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
