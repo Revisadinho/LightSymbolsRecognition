@@ -7,6 +7,8 @@
 import UIKit
 
 public class LightSymbols {
+    
+    let cameraViewController = ViewController()
     var rootViewController: UIViewController?
     
     public init(controller: UIViewController) {
@@ -14,7 +16,9 @@ public class LightSymbols {
     }
     
     public func showViewController() {
-        self.rootViewController?.present(ViewController(), animated: true, completion: nil)
+        guard let currentViewController = self.rootViewController else {return}
+        self.cameraViewController.delegate = currentViewController as? SymbolDetection
+        self.rootViewController?.present(cameraViewController, animated: true, completion: nil)
     }
 }
 
