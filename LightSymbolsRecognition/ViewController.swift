@@ -11,8 +11,25 @@ import CoreML
 import Vision
 import ImageIO
 
+public protocol SymbolDetection {
+    func getSymbolDetected(named: String)
+}
+
+
+
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
+    typealias VNConfidence = Float
+    
+    var delegate: SymbolDetection?
+    
+    var detections:[VNRecognizedObjectObservation]? {
+        didSet {
+            guard let firstObservation = self.detections?.first else {return}
+            self.updateDetections(with: firstObservation)
+        }
+    }
+
     let identifierLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = .white
@@ -36,7 +53,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             fatalError("Failed to load Vision ML model: \(error)")
         }
     }()
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,16 +80,12 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     }
     
     private func processDetections(for request: VNRequest, error: Error?) {
-        
         DispatchQueue.main.async {
             guard let results = request.results else {
                 print("Unable to detect anything.\n\(error!.localizedDescription)")
                 return
             }
-            
-            let detections = results as! [VNRecognizedObjectObservation]
-            guard let firstObservation = detections.first else {return}
-            self.updateDetections(with: firstObservation)
+            self.detections = results as? [VNRecognizedObjectObservation]
         }
     }
     
@@ -81,7 +93,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         guard let detectionIdentifier = detection.labels.first?.identifier else { return }
         guard let detectionConfidence = detection.labels.first?.confidence else { return }
         
-        identifierLabel.text = "\(detectionIdentifier) confidence: \(detectionConfidence)"
+        if (detectionConfidence > 0.90) {
+            delegate?.getSymbolDetected(named: detectionIdentifier)
+        }
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
