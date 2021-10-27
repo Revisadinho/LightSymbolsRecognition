@@ -86,7 +86,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         view.layer.addSublayer(previewLayer)
-        previewLayer.frame = view.frame
+        previewLayer.frame = view.bounds
         
         let dataOutput = AVCaptureVideoDataOutput()
         dataOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
