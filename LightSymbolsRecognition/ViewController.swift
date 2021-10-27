@@ -16,7 +16,6 @@ public protocol SymbolDetection {
 }
 
 
-
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     typealias VNConfidence = Float
@@ -42,9 +41,12 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     lazy var detectionRequest: VNCoreMLRequest = {
         do {
-            let model = try VNCoreMLModel(for: LightsDetector_v2().model)
             
-            let request = VNCoreMLRequest(model: model, completionHandler: { [weak self] request, error in
+            let modelURL = Bundle.module.url(forResource: "LightsDetector_v2",withExtension: "mlmodel")
+            let compileModel = try MLModel.compileModel(at: modelURL!)
+            let visionModel = try VNCoreMLModel(for: MLModel(contentsOf: compileModel))
+            
+            let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
                 self?.processDetections(for: request, error: error)
             })
             request.imageCropAndScaleOption = .scaleFit
