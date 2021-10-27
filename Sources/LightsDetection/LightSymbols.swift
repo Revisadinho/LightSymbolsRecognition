@@ -24,5 +24,9 @@ public class LightSymbols {
     public func setBackButtonColor(with color: UIColor) {
         lightsDetectionViewController.backButton.tintColor = color
     }
+    
+    public func dismissViewController() {
+        lightsDetectionViewController.dismiss(animated: true, completion: nil)
+    }
 }
 
