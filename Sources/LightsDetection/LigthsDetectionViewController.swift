@@ -12,10 +12,10 @@ import Vision
 import ImageIO
 
 public protocol SymbolDetection {
-    func getSymbolDetected(named: String)
+    func getSymbolDetected(symbolName: String)
 }
 
-class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
+class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     typealias VNConfidence = Float
     
@@ -27,6 +27,17 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             self.updateDetections(with: firstObservation)
         }
     }
+    
+    let backButton: UIButton = {
+        let button = UIButton()
+        let largeConfiguration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .medium)
+        let chevronSFSymbol = UIImage(systemName: "chevron.backward", withConfiguration: largeConfiguration)
+        button.backgroundColor = .clear
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.isUserInteractionEnabled = true
+        button.setImage(chevronSFSymbol, for: .normal)
+        return button
+    }()
     
     lazy var detectionRequest: VNCoreMLRequest = {
         do {
@@ -48,6 +59,19 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCaptureSession()
+        setupBackButton()
+    }
+    
+    private func setupBackButton() {
+        view.addSubview(backButton)
+        backButton.addTarget(self, action: #selector(dismissLigthsDetectionViewController), for: .touchUpInside)
+        
+        NSLayoutConstraint.activate([
+            backButton.heightAnchor.constraint(equalToConstant: 30),
+            backButton.widthAnchor.constraint(equalToConstant: 25),
+            backButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
+            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+        ])
     }
     
     private func setupCaptureSession() {
@@ -84,7 +108,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         guard let detectionConfidence = detection.labels.first?.confidence else { return }
         
         if (detectionConfidence > 0.90) {
-            delegate?.getSymbolDetected(named: detectionIdentifier)
+            delegate?.getSymbolDetected(symbolName: detectionIdentifier)
         }
     }
     
@@ -101,5 +125,10 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                 print("Failed to perform detection.\n\(error.localizedDescription)")
             }
         }
+    }
+    
+    @objc
+    public func dismissLigthsDetectionViewController() {
+        self.dismiss(animated: true)
     }
 }

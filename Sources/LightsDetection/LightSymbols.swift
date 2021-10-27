@@ -7,7 +7,7 @@
 import UIKit
 
 public class LightSymbols {
-    let cameraViewController = ViewController()
+    let lightsDetectionViewController = LigthsDetectionViewController()
     var rootViewController: UIViewController?
     
     public init(controller: UIViewController) {
@@ -16,8 +16,13 @@ public class LightSymbols {
     
     public func showViewController() {
         guard let currentViewController = self.rootViewController else {return}
-        self.cameraViewController.delegate = currentViewController as? SymbolDetection
-        self.rootViewController?.present(cameraViewController, animated: true, completion: nil)
+        lightsDetectionViewController.delegate = currentViewController as? SymbolDetection
+        lightsDetectionViewController.modalPresentationStyle = .overFullScreen
+        self.rootViewController?.present(lightsDetectionViewController, animated: true, completion: nil)
+    }
+    
+    public func setBackButtonColor(with color: UIColor) {
+        lightsDetectionViewController.backButton.tintColor = color
     }
 }
 
