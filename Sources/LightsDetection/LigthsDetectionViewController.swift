@@ -57,6 +57,11 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         }
     }()
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        session.startRunning()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCaptureSession()
