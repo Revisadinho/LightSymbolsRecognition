@@ -12,6 +12,7 @@ public class LightSymbols {
     
     public init(controller: UIViewController) {
         self.rootViewController = controller
+        lightsDetectionViewController.view = controller.view
     }
     
     public func showViewController() {
