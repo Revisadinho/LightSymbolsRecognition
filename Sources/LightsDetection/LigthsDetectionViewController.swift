@@ -30,7 +30,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     let backButton: UIButton = {
         let button = UIButton()
-        let largeConfiguration = UIImage.SymbolConfiguration(pointSize: 20, weight: .bold, scale: .medium)
+        let largeConfiguration = UIImage.SymbolConfiguration(pointSize: 25, weight: .bold, scale: .medium)
         let chevronSFSymbol = UIImage(systemName: "chevron.backward", withConfiguration: largeConfiguration)
         button.backgroundColor = .clear
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -67,10 +67,10 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         backButton.addTarget(self, action: #selector(dismissLigthsDetectionViewController), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
-            backButton.heightAnchor.constraint(equalToConstant: 30),
-            backButton.widthAnchor.constraint(equalToConstant: 25),
-            backButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
-            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            backButton.heightAnchor.constraint(equalToConstant: 35),
+            backButton.widthAnchor.constraint(equalToConstant: 30),
+            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
+            backButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
         ])
     }
     
