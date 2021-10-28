@@ -20,7 +20,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     typealias VNConfidence = Float
     
     var delegate: SymbolDetection?
-    var session: AVCaptureSession?
+    let session = AVCaptureSession()
     
     var detections:[VNRecognizedObjectObservation]? {
         didSet {
@@ -63,6 +63,11 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         setupBackButton()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(true)
+        session.stopRunning()
+    }
+    
     private func setupBackButton() {
         view.addSubview(backButton)
         backButton.addTarget(self, action: #selector(dismissLigthsDetectionViewController), for: .touchUpInside)
@@ -75,24 +80,24 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         ])
     }
     
+    
     private func setupCaptureSession() {
-        session = AVCaptureSession()
-        session?.sessionPreset = .photo
+        session.sessionPreset = .photo
         
         guard let captureDevice = AVCaptureDevice.default(for: .video) else { return }
         guard let input = try? AVCaptureDeviceInput(device: captureDevice) else { return }
         
-        session?.addInput(input)
-        session?.startRunning()
+        session.addInput(input)
+        session.startRunning()
         
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session!)
+        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
         view.layer.addSublayer(previewLayer)
         previewLayer.frame = view.bounds
         
         let dataOutput = AVCaptureVideoDataOutput()
         dataOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
-        session?.addOutput(dataOutput)
+        session.addOutput(dataOutput)
     }
     
     private func processDetections(for request: VNRequest, error: Error?) {
@@ -134,6 +139,5 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     @objc
     public func dismissLigthsDetectionViewController() {
         self.dismiss(animated: true)
-        session?.stopRunning()
     }
 }
