@@ -45,6 +45,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
             
             let modelURL = Bundle.module.url(forResource: "LightsDetector_v2",withExtension: "mlmodel")
             let compileModel = try MLModel.compileModel(at: modelURL!)
+            saveCompiledModelURL(compileModel)
             let visionModel = try VNCoreMLModel(for: MLModel(contentsOf: compileModel))
             
             let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
@@ -71,6 +72,18 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         session.stopRunning()
+    }
+    
+    private func saveCompiledModelURL(_ compiledModelURL: URL) {
+        do {
+            let fileManager = FileManager.default
+            let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        
+            let compileModelName = compiledModelURL.lastPathComponent
+            let permanentURL = appSupportURL.appendingPathComponent(compileModelName)
+            _ = try fileManager.replaceItemAt(permanentURL, withItemAt: compiledModelURL)
+        
+        } catch {}
     }
     
     private func setupBackButton() {
