@@ -85,6 +85,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         session.startRunning()
         
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        previewLayer.videoGravity = .resizeAspectFill
         view.layer.addSublayer(previewLayer)
         previewLayer.frame = view.bounds
         
