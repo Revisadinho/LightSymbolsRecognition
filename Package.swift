@@ -22,7 +22,7 @@ let package = Package(
         .target(
             name: "LightsDetection",
             dependencies: [],
-            resources: [.process("LightsDetector_v2.mlmodel")]),
+            resources: [.process("LightsDetector_v2.mlmodel"),.process("LightsDetector_v2.mlmodelc")]),
         .testTarget(
             name: "LightsDetectionTests",
             dependencies: ["LightsDetection"]),

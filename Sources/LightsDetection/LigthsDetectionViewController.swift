@@ -43,10 +43,10 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     lazy var detectionRequest: VNCoreMLRequest = {
         do {
             
-            let modelURL = Bundle.module.url(forResource: "LightsDetector_v2",withExtension: "mlmodel")
-            let compileModel = try MLModel.compileModel(at: modelURL!)
-            saveCompiledModelURL(compileModel)
-            let visionModel = try VNCoreMLModel(for: MLModel(contentsOf: compileModel))
+            let modelURL = Bundle.module.url(forResource: "LightsDetector_v2",withExtension: "mlmodelc")!
+            //let compileModel = try MLModel.compileModel(at: modelURL)
+            //saveCompiledModelURL(compileModel)
+            let visionModel = try VNCoreMLModel(for: MLModel(contentsOf: modelURL))
             
             let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
                 self?.processDetections(for: request, error: error)
