@@ -29,6 +29,10 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         }
     }
     
+    var bufferSize: CGSize = .zero
+    var rootLayer: CALayer! = nil
+    private var detectionOverlay: CALayer! = nil
+    
     let backButton: UIButton = {
         let button = UIButton()
         let largeConfiguration = UIImage.SymbolConfiguration(pointSize: 25, weight: .bold, scale: .medium)
@@ -44,8 +48,6 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         do {
             
             let modelURL = Bundle.module.url(forResource: "LightsDetector_v2",withExtension: "mlmodelc")!
-            //let compileModel = try MLModel.compileModel(at: modelURL)
-            //saveCompiledModelURL(compileModel)
             let visionModel = try VNCoreMLModel(for: MLModel(contentsOf: modelURL))
             
             let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
@@ -65,25 +67,16 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        rootLayer = view.layer
         setupCaptureSession()
+        setupLayers()
+        updateLayers()
         setupBackButton()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         session.stopRunning()
-    }
-    
-    private func saveCompiledModelURL(_ compiledModelURL: URL) {
-        do {
-            let fileManager = FileManager.default
-            let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        
-            let compileModelName = compiledModelURL.lastPathComponent
-            let permanentURL = appSupportURL.appendingPathComponent(compileModelName)
-            _ = try fileManager.replaceItemAt(permanentURL, withItemAt: compiledModelURL)
-        
-        } catch {}
     }
     
     private func setupBackButton() {
@@ -111,19 +104,30 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
         view.layer.addSublayer(previewLayer)
-        previewLayer.frame = view.bounds
+        previewLayer.frame = rootLayer.bounds
         
         let dataOutput = AVCaptureVideoDataOutput()
         dataOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
         session.addOutput(dataOutput)
+        
+        let captureConnection = dataOutput.connection(with: .video)
+        captureConnection?.isEnabled = true
+        
+        do {
+            try captureDevice.lockForConfiguration()
+            let dimensions = CMVideoFormatDescriptionGetDimensions((captureDevice.activeFormat.formatDescription))
+            bufferSize.width = CGFloat(dimensions.width)
+            bufferSize.height = CGFloat(dimensions.height)
+            captureDevice.unlockForConfiguration()
+        } catch {
+            print(error)
+        }
     }
     
     private func processDetections(for request: VNRequest, error: Error?) {
         DispatchQueue.main.async {
             guard let results = request.results else {
-                //print("Unable to detect anything.\n\(error!.localizedDescription)")
                 print("Unable to detect anything")
-                
                 return
             }
             self.detections = results as? [VNRecognizedObjectObservation]
@@ -135,7 +139,10 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         guard let detectionConfidence = detection.labels.first?.confidence else { return }
         
         if (detectionConfidence > 0.90) {
+            self.drawDetectionResquestResults(detection)
             delegate?.getSymbolDetected(symbolName: detectionIdentifier)
+        } else {
+            delegate?.getSymbolDetected(symbolName: "Erro ao identificar o objeto")
         }
     }
     
@@ -152,6 +159,64 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
                 print("Failed to perform detection.\n\(error.localizedDescription)")
             }
         }
+    }
+    
+    private func setupLayers() {
+        detectionOverlay = CALayer()
+        detectionOverlay.bounds = CGRect(x: 0.0,
+                                         y: 0.0,
+                                         width: bufferSize.width,
+                                         height: bufferSize.height)
+        detectionOverlay.position = CGPoint(x: rootLayer.bounds.midX, y: rootLayer.bounds.midY)
+        view.layer.addSublayer(detectionOverlay)
+    }
+    
+    private func drawDetectionResquestResults(_ detection: VNRecognizedObjectObservation) {
+        CATransaction.begin()
+        CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
+        detectionOverlay.sublayers = nil
+        
+        let detectionBounds = VNImageRectForNormalizedRect(detection.boundingBox, Int(bufferSize.width), Int(bufferSize.height))
+    
+        let layer = self.createRectLayer(bounds: detectionBounds)
+        detectionOverlay.addSublayer(layer)
+
+        self.updateLayers()
+        CATransaction.commit()
+    }
+    
+    private func updateLayers() {
+        let bounds = rootLayer.bounds
+        var scale: CGFloat
+        
+        let xScale: CGFloat = bounds.size.width / bufferSize.height
+        let yScale: CGFloat = bounds.size.height / bufferSize.width
+        
+        scale = fmax(xScale, yScale)
+        if scale.isInfinite {
+            scale = 1.0
+        }
+        CATransaction.begin()
+        CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
+        
+        // rotate the layer into screen orientation and scale and mirror
+        detectionOverlay.setAffineTransform(CGAffineTransform(rotationAngle: CGFloat(.pi / 2.0)).scaledBy(x: scale, y: -scale))
+        // center the layer
+        detectionOverlay.position = CGPoint(x: bounds.midX, y: bounds.midY)
+        
+        CATransaction.commit()
+    }
+    
+    private func createRectLayer(bounds: CGRect) -> CALayer {
+        let layer = CALayer()
+        layer.bounds.size.width = bounds.height
+        layer.bounds.size.height = bounds.width
+        layer.position = CGPoint(x: bounds.midX, y: bounds.midY)
+        layer.name = "Found Object"
+        layer.borderWidth = 8
+        layer.borderColor = UIColor.yellow.cgColor
+        layer.cornerRadius = 2
+        return layer
     }
     
     @objc
