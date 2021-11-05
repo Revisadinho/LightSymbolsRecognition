@@ -21,6 +21,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     var delegate: SymbolDetection?
     let session = AVCaptureSession()
+    private var previewLayer: AVCaptureVideoPreviewLayer! = nil
     
     var detections:[VNRecognizedObjectObservation]? {
         didSet {
@@ -101,7 +102,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         session.addInput(input)
         session.startRunning()
         
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
         view.layer.addSublayer(previewLayer)
         previewLayer.frame = rootLayer.bounds
@@ -207,6 +208,11 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         CATransaction.commit()
     }
     
+    func teardownLayer() {
+        previewLayer.removeFromSuperlayer()
+        previewLayer = nil
+    }
+    
     private func createRectLayer(bounds: CGRect) -> CALayer {
         let layer = CALayer()
         layer.bounds.size.width = bounds.height
@@ -222,5 +228,6 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     @objc
     public func dismissLigthsDetectionViewController() {
         self.dismiss(animated: true)
+        teardownLayer()
     }
 }
