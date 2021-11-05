@@ -210,7 +210,10 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     func teardownLayer() {
         print("Removing sublayers")
-        previewLayer.removeFromSuperlayer()
+        if let _ = previewLayer, let _ = detectionOverlay {
+            previewLayer.removeFromSuperlayer()
+            detectionOverlay.removeFromSuperlayer()
+        }
         previewLayer = nil
     }
     
@@ -224,11 +227,5 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         layer.borderColor = UIColor.yellow.cgColor
         layer.cornerRadius = 2
         return layer
-    }
-    
-    @objc
-    public func dismissLigthsDetectionViewController() {
-        teardownLayer()
-        self.dismiss(animated: true)
     }
 }
