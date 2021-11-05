@@ -228,4 +228,10 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         layer.cornerRadius = 2
         return layer
     }
+    
+    @objc
+    public func dismissLigthsDetectionViewController() {
+        teardownLayer()
+        self.dismiss(animated: true)
+    }
 }
