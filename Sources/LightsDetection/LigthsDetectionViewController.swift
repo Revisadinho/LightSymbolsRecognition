@@ -77,6 +77,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
+        detectionOverlay.removeFromSuperlayer()
         session.stopRunning()
     }
     
@@ -207,10 +208,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         
         CATransaction.commit()
     }
-    
-    func teardownLayer() {
-        view.layer.sublayers = nil
-    }
+
     
     private func createRectLayer(bounds: CGRect) -> CALayer {
         let layer = CALayer()
@@ -226,7 +224,6 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     @objc
     public func dismissLigthsDetectionViewController() {
-        teardownLayer()
         self.dismiss(animated: true)
     }
 }
