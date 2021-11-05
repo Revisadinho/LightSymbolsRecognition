@@ -209,8 +209,11 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     }
     
     func teardownLayer() {
+        print("Removing sublayers")
         previewLayer.removeFromSuperlayer()
         previewLayer = nil
+        detectionOverlay.removeFromSuperlayer()
+        detectionOverlay = nil
     }
     
     private func createRectLayer(bounds: CGRect) -> CALayer {
@@ -229,6 +232,5 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     public func dismissLigthsDetectionViewController() {
         self.dismiss(animated: true)
         teardownLayer()
-        detectionOverlay.sublayers = nil 
     }
 }
