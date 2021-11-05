@@ -77,7 +77,6 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
-        detectionOverlay.removeFromSuperlayer()
         session.stopRunning()
     }
     
@@ -141,7 +140,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         guard let detectionConfidence = detection.labels.first?.confidence else { return }
         
         if (detectionConfidence > 0.90) {
-            self.drawDetectionResquestResults(detection)
+            //self.drawDetectionResquestResults(detection)
             delegate?.getSymbolDetected(symbolName: detectionIdentifier)
         } else {
             delegate?.getSymbolDetected(symbolName: "Erro ao identificar o objeto")
