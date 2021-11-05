@@ -212,8 +212,6 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         print("Removing sublayers")
         previewLayer.removeFromSuperlayer()
         previewLayer = nil
-        detectionOverlay.removeFromSuperlayer()
-        detectionOverlay = nil
     }
     
     private func createRectLayer(bounds: CGRect) -> CALayer {

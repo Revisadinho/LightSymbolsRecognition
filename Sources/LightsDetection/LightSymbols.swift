@@ -26,6 +26,7 @@ public class LightSymbols {
     }
     
     public func dismissViewController() {
+        lightsDetectionViewController.teardownLayer()
         lightsDetectionViewController.dismiss(animated: true, completion: nil)
     }
 }
