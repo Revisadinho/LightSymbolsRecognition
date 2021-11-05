@@ -229,5 +229,6 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     public func dismissLigthsDetectionViewController() {
         self.dismiss(animated: true)
         teardownLayer()
+        detectionOverlay.sublayers = nil 
     }
 }
