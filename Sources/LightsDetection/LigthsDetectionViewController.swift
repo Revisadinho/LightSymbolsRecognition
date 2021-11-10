@@ -19,6 +19,23 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     typealias VNConfidence = Float
     
+    lazy var errorLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Não foi possível identificar o símbolo"
+        label.textColor = UIColor(red: 215/255, green: 219/255, blue: 249/255, alpha: 1)
+        label.isHidden = true
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.backgroundColor = UIColor(red: 41/255, green: 48/255, blue: 98/255, alpha: 1)
+        label.lineBreakMode = .byWordWrapping
+        label.layer.cornerRadius = 20
+        label.layer.masksToBounds = true
+        label.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        label.font = UIFont(name: "Quicksand-Bold", size: 14)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     var delegate: SymbolDetection?
     let session = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer! = nil
@@ -71,12 +88,21 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         rootLayer = view.layer
         setupCaptureSession()
         setupLayers()
-        updateLayers()
+        //updateLayers()
         setupBackButton()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            if self.detections?.first == nil {
+                self.errorLabel.isHidden = false
+            }
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
+        if !errorLabel.isHidden {
+            errorLabel.isHidden = true
+        }
         session.stopRunning()
     }
     
@@ -105,7 +131,9 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer.videoGravity = .resizeAspectFill
         view.layer.addSublayer(previewLayer)
-        previewLayer.frame = rootLayer.bounds
+        previewLayer.frame = view.frame
+        
+        setupConstraints()
         
         let dataOutput = AVCaptureVideoDataOutput()
         dataOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
@@ -131,19 +159,23 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
                 print("Unable to detect anything")
                 return
             }
+            self.teardownLayer()
             self.detections = results as? [VNRecognizedObjectObservation]
         }
     }
     
     private func updateDetections(with detection:VNRecognizedObjectObservation)  {
-        guard let detectionIdentifier = detection.labels.first?.identifier else { return }
-        guard let detectionConfidence = detection.labels.first?.confidence else { return }
-        
-        if (detectionConfidence > 0.90) {
-            //self.drawDetectionResquestResults(detection)
-            delegate?.getSymbolDetected(symbolName: detectionIdentifier)
-        } else {
-            delegate?.getSymbolDetected(symbolName: "Erro ao identificar o objeto")
+        DispatchQueue.main.async {
+            guard let detectionIdentifier = detection.labels.first?.identifier else { return }
+            guard let detectionConfidence = detection.labels.first?.confidence else { return }
+            
+            if (detectionConfidence > 0.97) {
+                self.delegate?.getSymbolDetected(symbolName: detectionIdentifier)
+                self.highlightSymbol(boundingRect: detection.boundingBox)
+                self.errorLabel.isHidden = true
+            } else {
+                self.errorLabel.isHidden = false
+            }
         }
     }
     
@@ -171,6 +203,28 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         detectionOverlay.position = CGPoint(x: rootLayer.bounds.midX, y: rootLayer.bounds.midY)
         view.layer.addSublayer(detectionOverlay)
     }
+    
+    private func highlightSymbol(boundingRect: CGRect) {
+        let outline = CALayer()
+        let source = view.frame
+        
+        let rectWidth = source.size.width * boundingRect.size.width
+        let rectHeight = source.size.height * boundingRect.size.height
+        
+        let centerX = source.maxX / rectWidth
+        let denominatorCenterY = rectHeight*0.03
+        
+        let centerY = source.maxY / denominatorCenterY
+        
+        outline.name = "Detection Layer"
+        outline.frame = CGRect(x: (source.midX * boundingRect.midX) + centerX, y: (source.midY * boundingRect.midY) + centerY, width: rectWidth+100 , height: rectHeight+80)
+        
+        outline.borderWidth = 2.0
+        outline.borderColor = UIColor.red.cgColor
+        
+        self.previewLayer.addSublayer(outline)
+    }
+    
     
     private func drawDetectionResquestResults(_ detection: VNRecognizedObjectObservation) {
         CATransaction.begin()
@@ -221,8 +275,22 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         return layer
     }
     
+    func teardownLayer() {
+        previewLayer.sublayers?.removeSubrange(1...)
+    }
+    
     @objc
     public func dismissLigthsDetectionViewController() {
         self.dismiss(animated: true)
+    }
+    
+    private func setupConstraints() {
+        view.addSubview(errorLabel)
+        NSLayoutConstraint.activate([
+            errorLabel.heightAnchor.constraint(equalToConstant: 70),
+            errorLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            errorLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5),
+            errorLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -5)
+        ])
     }
 }

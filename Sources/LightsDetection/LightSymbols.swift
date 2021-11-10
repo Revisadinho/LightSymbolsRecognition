@@ -25,6 +25,12 @@ public class LightSymbols {
         lightsDetectionViewController.backButton.tintColor = color
     }
     
+    public func setupErrorLabel(backgroundColor: UIColor, font: UIFont, textColor: UIColor) {
+        lightsDetectionViewController.errorLabel.backgroundColor = backgroundColor
+        lightsDetectionViewController.errorLabel.textColor = textColor
+        lightsDetectionViewController.errorLabel.font = font
+    }
+    
     public func dismissViewController() {
         lightsDetectionViewController.dismiss(animated: true, completion: nil)
     }
