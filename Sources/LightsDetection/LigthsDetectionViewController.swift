@@ -211,7 +211,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         let rectHeight = source.size.height * boundingRect.size.height
         
         let centerX = source.maxX / rectWidth
-        let denominatorCenterY = rectHeight*0.06
+        let denominatorCenterY = rectHeight*0.08
         
         let centerY = source.maxY / denominatorCenterY
         
