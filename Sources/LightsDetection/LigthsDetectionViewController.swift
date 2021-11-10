@@ -80,6 +80,11 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            if self.detections?.first == nil {
+                self.errorLabel.isHidden = false
+            }
+        }
         session.startRunning()
     }
     
@@ -90,12 +95,6 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         setupLayers()
         //updateLayers()
         setupBackButton()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            if self.detections?.first == nil {
-                self.errorLabel.isHidden = false
-            }
-        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -212,7 +211,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         let rectHeight = source.size.height * boundingRect.size.height
         
         let centerX = source.maxX / rectWidth
-        let denominatorCenterY = rectHeight*0.03
+        let denominatorCenterY = rectHeight*0.06
         
         let centerY = source.maxY / denominatorCenterY
         
