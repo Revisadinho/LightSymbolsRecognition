@@ -19,6 +19,14 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     typealias VNConfidence = Float
     
+    lazy var scanAreaView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .clear
+        view.clipsToBounds = true
+        return view
+    }()
+    
     lazy var errorLabel: UILabel = {
         let label = UILabel()
         label.text = "Não foi possível identificar o símbolo"
@@ -90,10 +98,8 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        rootLayer = view.layer
+        //rootLayer = view.layer
         setupCaptureSession()
-        setupLayers()
-        //updateLayers()
         setupBackButton()
     }
     
@@ -104,6 +110,24 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         }
         session.stopRunning()
     }
+    
+    private func setupScanArea() {
+        let overlay = createBlurViewOverlay(frame: view.frame)
+        view.addSubview(overlay)
+        
+        view.addSubview(scanAreaView)
+        scanAreaView.frame = CGRect(x: 0, y: 0, width: 284, height: 272)
+        
+        NSLayoutConstraint.activate([
+            scanAreaView.heightAnchor.constraint(equalToConstant: 272),
+            scanAreaView.widthAnchor.constraint(equalToConstant: 284),
+            scanAreaView.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 5),
+            scanAreaView.topAnchor.constraint(equalTo: view.topAnchor, constant: 248)
+        ])
+        
+        createCorners()
+    }
+    
     
     private func setupBackButton() {
         view.addSubview(backButton)
@@ -131,7 +155,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         previewLayer.videoGravity = .resizeAspectFill
         view.layer.addSublayer(previewLayer)
         previewLayer.frame = view.frame
-        
+        setupScanArea()
         setupConstraints()
         
         let dataOutput = AVCaptureVideoDataOutput()
@@ -158,7 +182,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
                 print("Unable to detect anything")
                 return
             }
-            self.teardownLayer()
+            //self.teardownLayer()
             self.detections = results as? [VNRecognizedObjectObservation]
         }
     }
@@ -170,7 +194,6 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
             
             if (detectionConfidence > 0.97) {
                 self.delegate?.getSymbolDetected(symbolName: detectionIdentifier)
-                self.highlightSymbol(boundingRect: detection.boundingBox)
                 self.errorLabel.isHidden = true
             } else {
                 self.errorLabel.isHidden = false
@@ -193,86 +216,68 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         }
     }
     
-    private func setupLayers() {
-        detectionOverlay = CALayer()
-        detectionOverlay.bounds = CGRect(x: 0.0,
-                                         y: 0.0,
-                                         width: bufferSize.width,
-                                         height: bufferSize.height)
-        detectionOverlay.position = CGPoint(x: rootLayer.bounds.midX, y: rootLayer.bounds.midY)
-        view.layer.addSublayer(detectionOverlay)
+    private func createBlurViewOverlay(frame: CGRect) -> UIView {
+        let overlayView = UIView(frame: view.frame)
+        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+        
+        let path = CGMutablePath()
+        
+        let width:CGFloat = 284
+        let height:CGFloat = 270
+        
+        path.addRect(CGRect(x: 70, y: 249, width: width, height: height))
+        path.addRect(CGRect(origin: .zero, size: overlayView.frame.size))
+    
+        
+        let maskLayer = CAShapeLayer()
+        maskLayer.backgroundColor = UIColor.black.cgColor
+        maskLayer.path = path
+        
+        maskLayer.fillRule = .evenOdd
+        overlayView.layer.mask = maskLayer
+        overlayView.clipsToBounds = true
+        
+        return overlayView
     }
     
-    private func highlightSymbol(boundingRect: CGRect) {
-        let outline = CALayer()
-        let source = view.frame
-        
-        let rectWidth = source.size.width * boundingRect.size.width
-        let rectHeight = source.size.height * boundingRect.size.height
-        
-        let centerX = source.maxX / rectWidth
-        let denominatorCenterY = rectHeight*0.08
-        
-        let centerY = source.maxY / denominatorCenterY
-        
-        outline.name = "Detection Layer"
-        outline.frame = CGRect(x: (source.midX * boundingRect.midX) + centerX, y: (source.midY * boundingRect.midY) + centerY, width: rectWidth+100 , height: rectHeight+80)
-        
-        outline.borderWidth = 2.0
-        outline.borderColor = UIColor.red.cgColor
-        
-        self.previewLayer.addSublayer(outline)
-    }
-    
-    
-    private func drawDetectionResquestResults(_ detection: VNRecognizedObjectObservation) {
-        CATransaction.begin()
-        CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
-        detectionOverlay.sublayers = nil
-        
-        let detectionBounds = VNImageRectForNormalizedRect(detection.boundingBox, Int(bufferSize.width), Int(bufferSize.height))
-    
-        let layer = self.createRectLayer(bounds: detectionBounds)
-        detectionOverlay.addSublayer(layer)
+    private func createCorners() {
+        let cornerLengthToShow = scanAreaView.bounds.size.height * 0.16
 
-        self.updateLayers()
-        CATransaction.commit()
-    }
-    
-    private func updateLayers() {
-        let bounds = rootLayer.bounds
-        var scale: CGFloat
-        
-        let xScale: CGFloat = bounds.size.width / bufferSize.height
-        let yScale: CGFloat = bounds.size.height / bufferSize.width
-        
-        scale = fmax(xScale, yScale)
-        if scale.isInfinite {
-            scale = 1.0
-        }
-        CATransaction.begin()
-        CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
-        
-        // rotate the layer into screen orientation and scale and mirror
-        detectionOverlay.setAffineTransform(CGAffineTransform(rotationAngle: CGFloat(.pi / 2.0)).scaledBy(x: scale, y: -scale))
-        // center the layer
-        detectionOverlay.position = CGPoint(x: bounds.midX, y: bounds.midY)
-        
-        CATransaction.commit()
-    }
+        let topLeftCorner = UIBezierPath()
+        topLeftCorner.move(to: CGPoint(x: scanAreaView.bounds.minX, y: scanAreaView.bounds.minY + cornerLengthToShow))
+        topLeftCorner.addLine(to: CGPoint(x: scanAreaView.bounds.minX, y: scanAreaView.bounds.minY))
+        topLeftCorner.addLine(to: CGPoint(x: scanAreaView.bounds.minX + cornerLengthToShow, y:scanAreaView.bounds.minY))
 
-    
-    private func createRectLayer(bounds: CGRect) -> CALayer {
-        let layer = CALayer()
-        layer.bounds.size.width = bounds.height
-        layer.bounds.size.height = bounds.width
-        layer.position = CGPoint(x: bounds.midX, y: bounds.midY)
-        layer.name = "Found Object"
-        layer.borderWidth = 8
-        layer.borderColor = UIColor.yellow.cgColor
-        layer.cornerRadius = 2
-        return layer
+        let topRightCorner = UIBezierPath()
+        topRightCorner.move(to: CGPoint(x: scanAreaView.bounds.maxX - cornerLengthToShow, y:scanAreaView.bounds.minY))
+        topRightCorner.addLine(to: CGPoint(x: scanAreaView.bounds.maxX, y:scanAreaView.bounds.minY))
+        topRightCorner.addLine(to: CGPoint(x: scanAreaView.bounds.maxX, y: scanAreaView.bounds.minY + cornerLengthToShow))
+
+        let bottomRightCorner = UIBezierPath()
+        bottomRightCorner.move(to: CGPoint(x: scanAreaView.bounds.maxX, y: scanAreaView.bounds.maxY - cornerLengthToShow))
+        bottomRightCorner.addLine(to: CGPoint(x: scanAreaView.bounds.maxX, y:scanAreaView.bounds.maxY))
+        bottomRightCorner.addLine(to: CGPoint(x: scanAreaView.bounds.maxX - cornerLengthToShow, y: scanAreaView.bounds.maxY))
+
+        let bottomLeftCorner = UIBezierPath()
+        bottomLeftCorner.move(to: CGPoint(x: scanAreaView.bounds.minX, y: scanAreaView.bounds.maxY - cornerLengthToShow))
+        bottomLeftCorner.addLine(to: CGPoint(x: scanAreaView.bounds.minX, y:scanAreaView.bounds.maxY))
+        bottomLeftCorner.addLine(to: CGPoint(x: scanAreaView.bounds.minX + cornerLengthToShow, y:scanAreaView.bounds.maxY))
+
+        let combinedPath = CGMutablePath()
+        combinedPath.addPath(topLeftCorner.cgPath)
+        combinedPath.addPath(topRightCorner.cgPath)
+        combinedPath.addPath(bottomRightCorner.cgPath)
+        combinedPath.addPath(bottomLeftCorner.cgPath)
+
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.path = combinedPath
+        shapeLayer.strokeColor = UIColor(red: 150/255, green: 121/255, blue: 247/255, alpha: 1).cgColor
+        shapeLayer.fillColor = UIColor.clear.cgColor
+        shapeLayer.lineWidth = 12
+            
+        scanAreaView.layer.addSublayer(shapeLayer)
     }
+    
     
     func teardownLayer() {
         previewLayer.sublayers?.removeSubrange(1...)
