@@ -116,11 +116,11 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         view.addSubview(overlay)
         
         view.addSubview(scanAreaView)
-        scanAreaView.frame = CGRect(x: 0, y: 0, width: 284, height: 272)
+        scanAreaView.frame = CGRect(x: 0, y: 0, width: 286, height: 274)
         
         NSLayoutConstraint.activate([
-            scanAreaView.heightAnchor.constraint(equalToConstant: 272),
-            scanAreaView.widthAnchor.constraint(equalToConstant: 284),
+            scanAreaView.heightAnchor.constraint(equalToConstant: 274),
+            scanAreaView.widthAnchor.constraint(equalToConstant: 286),
             scanAreaView.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 5),
             scanAreaView.topAnchor.constraint(equalTo: view.topAnchor, constant: 248)
         ])
@@ -224,8 +224,12 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         
         let width:CGFloat = 284
         let height:CGFloat = 270
+        let scaledX = width * 0.48
+        let scaledY = height * 0.73
+        let pointX:CGFloat = view.bounds.midX - scaledX
+        let pointY:CGFloat = view.bounds.midY - scaledY
         
-        path.addRect(CGRect(x: 70, y: 249, width: width, height: height))
+        path.addRect(CGRect(x: pointX, y: pointY, width: width, height: height))
         path.addRect(CGRect(origin: .zero, size: overlayView.frame.size))
     
         
