@@ -277,7 +277,7 @@ class LigthsDetectionViewController: UIViewController, AVCaptureVideoDataOutputS
         shapeLayer.path = combinedPath
         shapeLayer.strokeColor = UIColor(red: 150/255, green: 121/255, blue: 247/255, alpha: 1).cgColor
         shapeLayer.fillColor = UIColor.clear.cgColor
-        shapeLayer.lineWidth = 12
+        shapeLayer.lineWidth = 15
             
         scanAreaView.layer.addSublayer(shapeLayer)
     }
