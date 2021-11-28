@@ -262,7 +262,7 @@ extension CameraView {
 
             let shapeLayer = CAShapeLayer()
             shapeLayer.path = combinedPath
-            shapeLayer.strokeColor = UIColor.purple.cgColor
+        shapeLayer.strokeColor = UIColor(red: 150/255, green: 121/255, blue: 247/255, alpha: 1).cgColor
             shapeLayer.fillColor = UIColor.clear.cgColor
             shapeLayer.lineWidth = 5
     
