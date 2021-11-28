@@ -16,19 +16,17 @@ public class LightSymbols {
     
     public func showViewController() {
         guard let currentViewController = self.rootViewController else {return}
-        lightsDetectionViewController.delegate = currentViewController as? SymbolDetection
+        lightsDetectionViewController.delegate = currentViewController as? LigthsDetectionDelegate
         lightsDetectionViewController.modalPresentationStyle = .overFullScreen
         self.rootViewController?.present(lightsDetectionViewController, animated: true, completion: nil)
     }
     
     public func setBackButtonColor(with color: UIColor) {
-        lightsDetectionViewController.backButton.tintColor = color
+        lightsDetectionViewController.changeBackButtonColor(color: color)
     }
     
-    public func setupErrorLabel(backgroundColor: UIColor, font: UIFont, textColor: UIColor) {
-        lightsDetectionViewController.errorLabel.backgroundColor = backgroundColor
-        lightsDetectionViewController.errorLabel.textColor = textColor
-        lightsDetectionViewController.errorLabel.font = font
+    public func setErrorLabel(backgroundColor: UIColor, font: UIFont, textColor: UIColor) {
+        lightsDetectionViewController.setErrorLabelColorAndFont(backgroudColor: backgroundColor, font: font, textColor: textColor)
     }
     
     public func dismissViewController() {
