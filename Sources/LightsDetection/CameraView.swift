@@ -25,7 +25,7 @@ class CameraView: UIView {
     lazy var detectionRequest: VNCoreMLRequest = {
         do {
             
-            let modelURL = Bundle.module.url(forResource: "LightsDetector_v2.1",withExtension: "mlmodelc")!
+            let modelURL = Bundle.module.url(forResource: "LightsDetector_v2",withExtension: "mlmodelc")!
             let visionModel = try VNCoreMLModel(for: MLModel(contentsOf: modelURL))
             
             let request = VNCoreMLRequest(model: visionModel, completionHandler: { [weak self] request, error in
